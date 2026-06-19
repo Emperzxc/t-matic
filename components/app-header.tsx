@@ -3,11 +3,11 @@ import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { ProfileMenu } from "@/components/profile-menu";
 import type { SessionUser } from "@/lib/auth";
-import { LogIn, LayoutDashboard } from "lucide-react";
+import { LogIn, LayoutDashboard, UserPlus } from "lucide-react";
 
 export function AppHeader({ user }: { user: SessionUser | null }) {
   return (
-    <header className="sticky top-0 z-30 border-b bg-white/95 shadow-sm backdrop-blur">
+    <header className="sticky top-0 z-30 border-b bg-white/95 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#0b1020]/95">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Logo />
         <nav className="flex shrink-0 items-center gap-2">
@@ -22,12 +22,20 @@ export function AppHeader({ user }: { user: SessionUser | null }) {
           {user ? (
             <ProfileMenu user={user} />
           ) : (
-            <Button asChild>
-              <Link href="/login">
-                <LogIn className="h-4 w-4" />
-                Login
-              </Link>
-            </Button>
+            <>
+              <Button asChild variant="outline" className="hidden sm:inline-flex">
+                <Link href="/signup">
+                  <UserPlus className="h-4 w-4" />
+                  Sign up
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/login">
+                  <LogIn className="h-4 w-4" />
+                  Login
+                </Link>
+              </Button>
+            </>
           )}
         </nav>
       </div>

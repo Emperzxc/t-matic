@@ -1,7 +1,9 @@
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
+import { getServerSession } from "next-auth";
 import { cache } from "react";
 import { sql } from "@/lib/db";
+import { authOptions } from "@/lib/next-auth";
 
 export type UserRole = "super_admin" | "user";
 
@@ -48,16 +50,20 @@ export async function clearSession() {
 export const getSession = cache(async (): Promise<SessionUser | null> => {
   const cookieStore = await cookies();
   const token = cookieStore.get(cookieName)?.value;
-  if (!token) return null;
-
-  try {
-    const verified = await jwtVerify(token, authSecret());
-    const payload = verified.payload as SessionUser;
-    if (!payload.id || !payload.email || payload.status !== "active") return null;
-    return payload;
-  } catch {
-    return null;
+  if (token) {
+    try {
+      const verified = await jwtVerify(token, authSecret());
+      const payload = verified.payload as SessionUser;
+      if (payload.id && payload.email && payload.status === "active") return payload;
+    } catch {
+      return null;
+    }
   }
+
+  const nextAuthSession = await getServerSession(authOptions);
+  const user = nextAuthSession?.user;
+  if (!user?.id || !user.email || user.status !== "active") return null;
+  return user;
 });
 
 export async function getFreshSessionUser() {

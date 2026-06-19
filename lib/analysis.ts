@@ -18,6 +18,15 @@ export type AnalysisResult = {
   recommendations: string[];
 };
 
+export type AnalysisHistoryItem = {
+  id: string;
+  created_at: string;
+  summary: string;
+  total_codes: number;
+  master_theme_count: number;
+  superordinate_theme_count: number;
+};
+
 export const emptyAnalysis: AnalysisResult = {
   summary: "",
   codes: [],

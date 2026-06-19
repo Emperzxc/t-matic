@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDown, Loader2, LogOut, UserRound } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { ChevronDown, Loader2, LogOut, Moon, Monitor, Sun, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   AlertDialog,
@@ -19,9 +20,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTheme, type ThemePreference } from "@/components/theme-provider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +35,7 @@ import type { SessionUser } from "@/lib/auth";
 
 export function ProfileMenu({ user }: { user: SessionUser }) {
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const [open, setOpen] = React.useState(false);
   const [confirmLogout, setConfirmLogout] = React.useState(false);
   const [loggingOut, setLoggingOut] = React.useState(false);
@@ -40,6 +45,7 @@ export function ProfileMenu({ user }: { user: SessionUser }) {
     try {
       const response = await fetch("/api/auth/logout", { method: "POST" });
       if (!response.ok) throw new Error("Unable to log out.");
+      await signOut({ redirect: false });
       setConfirmLogout(false);
       router.replace("/login");
       router.refresh();
@@ -54,7 +60,7 @@ export function ProfileMenu({ user }: { user: SessionUser }) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="h-11 gap-3 rounded-full border-red-100 bg-white px-2 pr-3 shadow-sm">
+          <Button variant="outline" className="h-11 gap-3 rounded-full border-red-100 bg-white px-2 pr-3 shadow-sm dark:border-white/10 dark:bg-card">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-primary text-sm font-black text-white">
               {initials(user.name || user.email)}
             </span>
@@ -86,7 +92,23 @@ export function ProfileMenu({ user }: { user: SessionUser }) {
             Profile details
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-red-700 focus:bg-red-50 focus:text-red-800" onSelect={() => setConfirmLogout(true)}>
+          <DropdownMenuLabel className="text-xs uppercase text-muted-foreground">Theme</DropdownMenuLabel>
+          <DropdownMenuRadioGroup value={theme} onValueChange={(value) => setTheme(value as ThemePreference)}>
+            <DropdownMenuRadioItem value="light">
+              <Sun className="h-4 w-4" />
+              Light
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="dark">
+              <Moon className="h-4 w-4" />
+              Dark
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="system">
+              <Monitor className="h-4 w-4" />
+              System aware
+            </DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="text-red-700 focus:bg-red-50 focus:text-red-800 dark:text-red-300 dark:focus:bg-red-950/40 dark:focus:text-red-200" onSelect={() => setConfirmLogout(true)}>
             <LogOut className="h-4 w-4" />
             Logout
           </DropdownMenuItem>
@@ -150,7 +172,7 @@ function ProfileDialog({ user, onClose }: { user: SessionUser; onClose: () => vo
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4">
-      <form onSubmit={submit} className="w-full max-w-lg rounded-lg border bg-white p-6 shadow-soft">
+      <form onSubmit={submit} className="w-full max-w-lg rounded-lg border bg-white p-6 shadow-soft dark:bg-card">
         <div className="mb-5">
           <h2 className="text-2xl font-black">Profile Details</h2>
           <p className="text-sm text-muted-foreground">Manage your display name, email, and password.</p>

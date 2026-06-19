@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     const raw = completion.choices[0]?.message.content ?? "{}";
     const result = resultSchema.parse(JSON.parse(raw)) as AnalysisResult;
 
-    await sql`
+    const rows = await sql`
       insert into analyses (user_id, transcript, result, total_codes, master_theme_count, superordinate_theme_count)
       values (
         ${user.id},
@@ -68,9 +68,10 @@ export async function POST(request: Request) {
         ${result.masterThemes.length},
         ${result.superordinateThemes.length}
       )
-    `;
+      returning id::text, created_at::text
+    ` as { id: string; created_at: string }[];
 
-    return NextResponse.json({ result });
+    return NextResponse.json({ id: rows[0]?.id, created_at: rows[0]?.created_at, result });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to analyze text.";
     const status = message === "Unauthorized" ? 401 : 400;

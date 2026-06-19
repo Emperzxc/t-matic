@@ -115,10 +115,10 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
   const submissionTotalPages = Math.max(Math.ceil(submissionTable.total / submissionTable.pageSize), 1);
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fff7f7_0%,#f8fafc_34%,#eef7f6_100%)]">
-      <header className="sticky top-0 z-20 border-b border-red-950/10 bg-white/90 shadow-sm backdrop-blur">
-        <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-          <div className="min-w-0">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#fff7f7_0%,#f8fafc_34%,#eef7f6_100%)] dark:bg-[linear-gradient(180deg,#160b0b_0%,#0f172a_45%,#09201f_100%)]">
+      <header className="sticky top-0 z-20 border-b border-red-950/10 bg-white/90 shadow-sm backdrop-blur dark:border-white/10 dark:bg-card/90">
+        <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-3 px-3 sm:gap-4 sm:px-6 lg:px-8">
+          <div className="min-w-0 [&_span]:max-sm:max-w-[170px] [&_span]:max-sm:truncate">
             <Logo className="[&_span]:text-lg sm:[&_span]:text-xl" />
             <p className="mt-1 truncate pl-[52px] text-xs font-semibold text-slate-500">{admin.email}</p>
           </div>
@@ -126,7 +126,7 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto grid max-w-7xl gap-6 px-3 py-6 sm:gap-8 sm:px-6 sm:py-8 lg:px-8">
         <section className="rounded-lg border border-red-100 bg-[linear-gradient(135deg,#840000_0%,#5a0705_46%,#123f3c_100%)] p-5 text-white shadow-soft sm:p-7">
           <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
@@ -134,12 +134,12 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
                 <Activity className="h-4 w-4" />
                 Live administration
               </div>
-              <h1 className="mt-4 text-3xl font-black sm:text-4xl">Admin Dashboard</h1>
+              <h1 className="mt-4 text-2xl font-black sm:text-4xl">Admin Dashboard</h1>
               <p className="mt-2 max-w-2xl leading-7 text-white/75">
                 Monitor analysis volume, review recent submissions, and manage researcher access from one responsive workspace.
               </p>
             </div>
-            <Button onClick={() => { setEditing(null); setFormOpen(true); }} className="bg-white text-primary hover:bg-red-50">
+            <Button onClick={() => { setEditing(null); setFormOpen(true); }} className="w-full bg-white text-primary hover:bg-red-50 dark:bg-white dark:text-primary sm:w-auto">
               <Plus className="h-4 w-4" />
               Add User
             </Button>
@@ -157,21 +157,21 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
 
         <section className="grid gap-5 lg:grid-cols-2">
           <Card className="overflow-hidden border-red-100 shadow-sm">
-            <CardHeader className="border-b bg-red-50/70">
-              <div className="flex items-center justify-between gap-3">
-                <CardTitle className="flex items-center gap-2 text-red-950">
+            <CardHeader className="border-b bg-red-50/70 dark:bg-red-950/20">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <CardTitle className="flex items-center gap-2 text-red-950 dark:text-red-100">
                   <Tags className="h-5 w-5" />
                   Top 10 Code Frequency
                 </CardTitle>
                 <Button variant="outline" size="sm" onClick={() => updateParam("view", "codes")}>View all</Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4 p-5">
+            <CardContent className="space-y-4 p-4 sm:p-5">
               {codeRows.length ? codeRows.map((row, index) => (
                 <div key={row.code} className="grid gap-2">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="min-w-0 text-sm font-bold text-slate-800">{index + 1}. {row.code}</p>
-                    <Badge variant="outline" className="border-red-200 bg-red-50 text-red-800">{row.frequency}</Badge>
+                    <p className="min-w-0 text-sm font-bold text-slate-800 dark:text-slate-100">{index + 1}. {row.code}</p>
+                    <Badge variant="outline" className="border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">{row.frequency}</Badge>
                   </div>
                   <div className="h-2.5 overflow-hidden rounded-full bg-red-50">
                     <div className="h-full rounded-full bg-[linear-gradient(90deg,#840000,#14b8a6,#f59e0b)]" style={{ width: `${Math.min(Number(row.frequency) * 10, 100)}%` }} />
@@ -181,21 +181,21 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
             </CardContent>
           </Card>
           <Card className="overflow-hidden border-teal-100 shadow-sm">
-            <CardHeader className="border-b bg-teal-50/80">
-              <div className="flex items-center justify-between gap-3">
-                <CardTitle className="flex items-center gap-2 text-teal-950">
+            <CardHeader className="border-b bg-teal-50/80 dark:bg-teal-950/20">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <CardTitle className="flex items-center gap-2 text-teal-950 dark:text-teal-100">
                   <Database className="h-5 w-5" />
                   Recent Analysis Submissions
                 </CardTitle>
                 <Button variant="outline" size="sm" onClick={() => updateParam("view", "submissions")}>View all</Button>
               </div>
             </CardHeader>
-            <CardContent className="grid gap-3 p-5">
+            <CardContent className="grid gap-3 p-4 sm:p-5">
               {recent.length ? recent.map((item) => (
-                <div key={item.id} className="rounded-md border border-teal-100 bg-white p-4 shadow-sm">
+                <div key={item.id} className="rounded-md border border-teal-100 bg-white p-4 shadow-sm dark:border-teal-900/50 dark:bg-card">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-bold text-slate-800">{item.email}</p>
-                    <Badge variant="outline" className="border-teal-200 bg-teal-50 text-teal-800">{new Date(item.created_at).toLocaleDateString()}</Badge>
+                    <p className="font-bold text-slate-800 dark:text-slate-100">{item.email}</p>
+                    <Badge variant="outline" className="border-teal-200 bg-teal-50 text-teal-800 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200">{new Date(item.created_at).toLocaleDateString()}</Badge>
                   </div>
                   <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{item.summary}</p>
                 </div>
@@ -220,17 +220,17 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
             onNext={() => updateParam("codePage", String(codeTable.page + 1))}
           >
             <table className="w-full min-w-[560px] text-sm">
-              <thead className="bg-slate-100 text-left text-slate-700">
+              <thead className="bg-slate-100 text-left text-slate-700 dark:bg-secondary dark:text-slate-200">
                 <tr>
                   <SortableTh label="Code" active={filters.codeSort === "code"} dir={filters.codeDir} onClick={() => sortScoped("code", "codeSort", "codeDir")} />
                   <SortableTh label="Frequency" active={filters.codeSort === "frequency"} dir={filters.codeDir} onClick={() => sortScoped("frequency", "codeSort", "codeDir")} />
                 </tr>
               </thead>
-              <tbody className="divide-y bg-white">
+              <tbody className="divide-y bg-white dark:divide-border dark:bg-card">
                 {codeTable.rows.map((row) => (
-                  <tr key={row.code} className="hover:bg-red-50/40">
-                    <td className="px-4 py-3 font-bold text-slate-800">{row.code}</td>
-                    <td className="px-4 py-3"><Badge variant="outline" className="border-red-200 bg-red-50 text-red-800">{row.frequency}</Badge></td>
+                  <tr key={row.code} className="hover:bg-red-50/40 dark:hover:bg-secondary/70">
+                    <td className="px-4 py-3 font-bold text-slate-800 dark:text-slate-100">{row.code}</td>
+                    <td className="px-4 py-3"><Badge variant="outline" className="border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">{row.frequency}</Badge></td>
                   </tr>
                 ))}
               </tbody>
@@ -254,7 +254,7 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
             onNext={() => updateParam("submissionPage", String(submissionTable.page + 1))}
           >
             <table className="w-full min-w-[980px] text-sm">
-              <thead className="bg-slate-100 text-left text-slate-700">
+              <thead className="bg-slate-100 text-left text-slate-700 dark:bg-secondary dark:text-slate-200">
                 <tr>
                   <SortableTh label="Email" active={filters.submissionSort === "email"} dir={filters.submissionDir} onClick={() => sortScoped("email", "submissionSort", "submissionDir")} />
                   <SortableTh label="Created" active={filters.submissionSort === "created_at"} dir={filters.submissionDir} onClick={() => sortScoped("created_at", "submissionSort", "submissionDir")} />
@@ -264,10 +264,10 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
                   <th className="px-4 py-3 font-bold">Summary</th>
                 </tr>
               </thead>
-              <tbody className="divide-y bg-white">
+              <tbody className="divide-y bg-white dark:divide-border dark:bg-card">
                 {submissionTable.rows.map((row) => (
-                  <tr key={row.id} className="hover:bg-teal-50/40">
-                    <td className="px-4 py-3 font-bold text-slate-800">{row.email}</td>
+                  <tr key={row.id} className="hover:bg-teal-50/40 dark:hover:bg-secondary/70">
+                    <td className="px-4 py-3 font-bold text-slate-800 dark:text-slate-100">{row.email}</td>
                     <td className="px-4 py-3 text-muted-foreground">{new Date(row.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3">{row.total_codes}</td>
                     <td className="px-4 py-3">{row.master_theme_count}</td>
@@ -292,17 +292,17 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
               <p className="text-sm text-muted-foreground">Create users and super admins, update access, and disable accounts.</p>
             </div>
           </div>
-          <Card className="overflow-hidden border-slate-200 shadow-soft">
-            <div className="border-b bg-white p-4 sm:p-6">
+          <Card className="overflow-hidden border-slate-200 shadow-soft dark:border-white/10">
+            <div className="border-b bg-white p-4 dark:bg-card sm:p-6">
               <div className="grid gap-3 md:grid-cols-[1fr_180px_180px]">
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input placeholder="Filter by name or email" defaultValue={filters.q} className="h-11 bg-slate-50 pl-9" onKeyDown={(event) => {
+                  <Input placeholder="Filter by name or email" defaultValue={filters.q} className="h-11 bg-slate-50 pl-9 dark:bg-secondary" onKeyDown={(event) => {
                     if (event.key === "Enter") updateParam("q", event.currentTarget.value);
                   }} />
                 </div>
                 <Select value={filters.role} onValueChange={(value) => updateParam("role", value)}>
-                  <SelectTrigger className="h-11 bg-slate-50"><SelectValue placeholder="Role" /></SelectTrigger>
+                  <SelectTrigger className="h-11 bg-slate-50 dark:bg-secondary"><SelectValue placeholder="Role" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All roles</SelectItem>
                     <SelectItem value="super_admin">Super admins</SelectItem>
@@ -310,7 +310,7 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
                   </SelectContent>
                 </Select>
                 <Select value={filters.status} onValueChange={(value) => updateParam("status", value)}>
-                  <SelectTrigger className="h-11 bg-slate-50"><SelectValue placeholder="Status" /></SelectTrigger>
+                  <SelectTrigger className="h-11 bg-slate-50 dark:bg-secondary"><SelectValue placeholder="Status" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All statuses</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
@@ -320,9 +320,19 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
               </div>
             </div>
             <CardContent className="p-4 sm:p-6">
-              <div className="overflow-x-auto rounded-lg border">
+              <div className="grid gap-3 md:hidden">
+                {users.rows.map((user) => (
+                  <UserMobileCard
+                    key={user.id}
+                    user={user}
+                    onEdit={() => { setEditing(user); setFormOpen(true); }}
+                    onDisable={() => disableUser(user.id)}
+                  />
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto rounded-lg border md:block">
                 <table className="w-full min-w-[760px] text-sm">
-                  <thead className="bg-slate-100 text-left text-slate-700">
+                  <thead className="bg-slate-100 text-left text-slate-700 dark:bg-secondary dark:text-slate-200">
                     <tr>
                       {[
                         ["name", "Name"],
@@ -341,12 +351,12 @@ export function AdminDashboard({ admin, metrics, codeRows, recent, codeTable, su
                       <th className="px-4 py-3 text-right font-bold">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y bg-white">
+                  <tbody className="divide-y bg-white dark:divide-border dark:bg-card">
                     {users.rows.map((user) => (
-                      <tr key={user.id} className="transition-colors hover:bg-red-50/40">
+                      <tr key={user.id} className="transition-colors hover:bg-red-50/40 dark:hover:bg-secondary/70">
                         <td className="px-4 py-3 font-semibold">{user.name}</td>
                         <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
-                        <td className="px-4 py-3"><Badge variant={user.role === "super_admin" ? "default" : "secondary"} className={user.role === "super_admin" ? "bg-primary" : "bg-teal-50 text-teal-800"}>{user.role.replace("_", " ")}</Badge></td>
+                        <td className="px-4 py-3"><Badge variant={user.role === "super_admin" ? "default" : "secondary"} className={user.role === "super_admin" ? "bg-primary" : "bg-teal-50 text-teal-800 dark:bg-teal-950/50 dark:text-teal-200"}>{user.role.replace("_", " ")}</Badge></td>
                         <td className="px-4 py-3"><Badge variant={user.status === "active" ? "success" : "outline"}>{user.status}</Badge></td>
                         <td className="px-4 py-3 text-muted-foreground">{new Date(user.created_at).toLocaleDateString()}</td>
                         <td className="px-4 py-3">
@@ -397,6 +407,46 @@ function EmptyBlock({ label }: { label: string }) {
   return <div className="grid min-h-[220px] place-items-center rounded-md bg-secondary text-muted-foreground">{label}</div>;
 }
 
+function UserMobileCard({
+  user,
+  onEdit,
+  onDisable,
+}: {
+  user: ManagedUser;
+  onEdit: () => void;
+  onDisable: () => void;
+}) {
+  return (
+    <div className="rounded-lg border bg-card p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate font-black">{user.name}</p>
+          <p className="mt-1 truncate text-sm text-muted-foreground">{user.email}</p>
+        </div>
+        <Badge variant={user.status === "active" ? "success" : "outline"}>{user.status}</Badge>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <Badge variant={user.role === "super_admin" ? "default" : "secondary"} className={user.role === "super_admin" ? "bg-primary" : "bg-teal-50 text-teal-800 dark:bg-teal-950/50 dark:text-teal-200"}>
+          {user.role.replace("_", " ")}
+        </Badge>
+        <span className="text-xs font-medium text-muted-foreground">
+          Created {new Date(user.created_at).toLocaleDateString()}
+        </span>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Button type="button" variant="outline" onClick={onEdit}>
+          <Edit className="h-4 w-4" />
+          Edit
+        </Button>
+        <Button type="button" variant="outline" onClick={onDisable}>
+          <Trash2 className="h-4 w-4" />
+          Disable
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function AdminDataTable({
   title,
   description,
@@ -427,12 +477,12 @@ function AdminDataTable({
   children: React.ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-3 backdrop-blur-sm sm:p-6">
-      <Card className="flex max-h-[88vh] w-full max-w-6xl flex-col overflow-hidden border-slate-200 shadow-soft">
-        <div className="border-b bg-white p-4 sm:p-6">
-          <div className="grid gap-4 lg:grid-cols-[1fr_360px_auto] lg:items-center">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-2 backdrop-blur-sm sm:p-6">
+      <Card className="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden border-slate-200 shadow-soft dark:border-white/10">
+        <div className="border-b bg-white p-4 dark:bg-card sm:p-6">
+          <div className="grid gap-4 sm:grid-cols-[1fr_auto] lg:grid-cols-[1fr_360px_auto] lg:items-center">
             <div>
-              <h2 className="flex items-center gap-2 text-2xl font-black">
+              <h2 className="flex items-center gap-2 text-xl font-black sm:text-2xl">
                 {icon}
                 {title}
               </h2>
@@ -443,7 +493,7 @@ function AdminDataTable({
               <Input
                 placeholder={searchPlaceholder}
                 defaultValue={searchValue}
-                className="h-11 bg-slate-50 pl-9"
+                className="h-11 bg-slate-50 pl-9 dark:bg-secondary"
                 onKeyDown={(event) => {
                   if (event.key === "Enter") onSearch(event.currentTarget.value);
                 }}
@@ -454,7 +504,7 @@ function AdminDataTable({
             </Button>
           </div>
         </div>
-        <CardContent className="min-h-0 flex-1 overflow-hidden p-4 sm:p-6">
+        <CardContent className="min-h-0 flex-1 overflow-hidden p-3 sm:p-6">
           <div className="h-full max-h-[56vh] overflow-auto rounded-lg border">{children}</div>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground">{total} records · page {page} of {totalPages}</p>
@@ -519,8 +569,8 @@ function UserForm({ user, onClose, onSaved }: { user: ManagedUser | null; onClos
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4">
-      <form onSubmit={submit} className="w-full max-w-lg rounded-lg bg-white p-6 shadow-soft">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-3">
+      <form onSubmit={submit} className="max-h-[92vh] w-full max-w-lg overflow-auto rounded-lg bg-white p-5 shadow-soft dark:bg-card sm:p-6">
         <div className="mb-5">
           <h3 className="text-2xl font-black">{user ? "Edit User" : "Add User"}</h3>
           <p className="text-sm text-muted-foreground">Super admins can create both researchers and other super admins.</p>

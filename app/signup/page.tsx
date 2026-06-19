@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { LoginForm } from "@/components/login-form";
+import { BadgeCheck, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { SignupForm } from "@/components/signup-form";
 import { getSession } from "@/lib/auth";
 import { oauthProviderStatus } from "@/lib/next-auth";
-import { BadgeCheck, ShieldCheck } from "lucide-react";
 
-export default async function LoginPage({
+export default async function SignupPage({
   searchParams,
 }: {
   searchParams: Promise<{ next?: string }>;
@@ -26,26 +26,26 @@ export default async function LoginPage({
             </div>
             <div className="space-y-4">
               <h1 className="max-w-xl text-4xl font-black leading-tight tracking-normal sm:text-5xl">
-                Thematic analysis access for your team
+                Create your T-Matic researcher account
               </h1>
               <p className="max-w-md text-base leading-7 text-white/88 sm:text-lg sm:leading-8">
-                Continue qualitative coding, AI-assisted theme generation, and admin work from one protected account.
+                Sign up to analyze transcripts, save results, and return to your qualitative research workspace.
               </p>
             </div>
           </div>
           <div className="grid gap-3 text-sm font-medium text-white/90 sm:grid-cols-2">
             <div className="flex items-center gap-2 rounded-md border border-white/15 bg-white/10 px-3 py-2">
               <BadgeCheck className="h-4 w-4 shrink-0" />
-              Researcher sign-in
+              Email signup
             </div>
             <div className="flex items-center gap-2 rounded-md border border-white/15 bg-white/10 px-3 py-2">
               <BadgeCheck className="h-4 w-4 shrink-0" />
-              Admin console access
+              Google signup
             </div>
           </div>
         </div>
         <div className="mx-auto w-full max-w-md rounded-lg border bg-white/95 p-6 shadow-soft backdrop-blur dark:border-white/10 dark:bg-card/95 sm:p-8">
-          <LoginForm next={params.next} providers={oauthProviderStatus} />
+          <SignupForm next={params.next} providers={oauthProviderStatus} />
         </div>
       </section>
     </main>

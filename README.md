@@ -16,6 +16,19 @@ npm install
 DATABASE_URL="..."
 OPENAI_API_KEY="..."
 AUTH_SECRET="use-a-long-random-secret"
+NEXTAUTH_SECRET="use-the-same-long-random-secret"
+NEXTAUTH_URL="http://localhost:3000"
+```
+
+For Google signup, create an OAuth app with this callback URL and add its credentials to `.env.local`:
+
+```text
+http://localhost:3000/api/auth/callback/google
+```
+
+```bash
+GOOGLE_CLIENT_ID="..."
+GOOGLE_CLIENT_SECRET="..."
 ```
 
 3. Create tables and seed the requested accounts:
@@ -44,4 +57,5 @@ npm run dev
 
 - `/` researcher analysis workspace. Login is required before analysis.
 - `/login` account login.
+- `/signup` account signup with email/password or Google.
 - `/admin` super admin dashboard with metrics and user CRUD.

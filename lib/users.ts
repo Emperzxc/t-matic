@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { sql } from "@/lib/db";
-import type { UserRole } from "@/lib/auth";
+import type { SessionUser, UserRole } from "@/lib/auth";
 
 export type ManagedUser = {
   id: string;
@@ -14,6 +14,75 @@ export type ManagedUser = {
 
 export async function hashPassword(password: string) {
   return bcrypt.hash(password, 12);
+}
+
+export async function createUserWithPassword({
+  name,
+  email,
+  password,
+}: {
+  name: string;
+  email: string;
+  password: string;
+}) {
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedName = name.trim();
+  const existing = await sql`
+    select id::text
+    from users
+    where lower(email) = lower(${normalizedEmail})
+    limit 1
+  ` as { id: string }[];
+
+  if (existing[0]) {
+    throw new Error("An account with this email already exists.");
+  }
+
+  const passwordHash = await hashPassword(password);
+  const rows = await sql`
+    insert into users (name, email, password_hash, role, status)
+    values (${normalizedName}, ${normalizedEmail}, ${passwordHash}, 'user', 'active')
+    returning id::text, email, name, role, status
+  ` as SessionUser[];
+
+  return rows[0];
+}
+
+export async function findOrCreateOAuthUser({
+  name,
+  email,
+}: {
+  name?: string | null;
+  email?: string | null;
+}) {
+  const normalizedEmail = email?.trim().toLowerCase();
+  if (!normalizedEmail) {
+    throw new Error("The social account did not provide an email address.");
+  }
+
+  const existing = await sql`
+    select id::text, email, name, role, status
+    from users
+    where lower(email) = lower(${normalizedEmail})
+    limit 1
+  ` as SessionUser[];
+
+  if (existing[0]) {
+    if (existing[0].status !== "active") {
+      throw new Error("This account has been disabled.");
+    }
+    return existing[0];
+  }
+
+  const generatedPasswordHash = await hashPassword(crypto.randomUUID());
+  const displayName = name?.trim() || normalizedEmail.split("@")[0] || "T-Matic user";
+  const rows = await sql`
+    insert into users (name, email, password_hash, role, status)
+    values (${displayName}, ${normalizedEmail}, ${generatedPasswordHash}, 'user', 'active')
+    returning id::text, email, name, role, status
+  ` as SessionUser[];
+
+  return rows[0];
 }
 
 export async function listUsers({
