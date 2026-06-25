@@ -194,7 +194,10 @@ function ProfileDialog({ user, onClose }: { user: SessionUser; onClose: () => vo
         </div>
         <div className="mt-6 flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-          <Button disabled={loading}>{loading ? "Saving..." : "Save profile"}</Button>
+          <Button disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            {loading ? "Saving..." : "Save profile"}
+          </Button>
         </div>
       </form>
     </div>

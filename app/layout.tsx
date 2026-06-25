@@ -7,9 +7,9 @@ export const metadata: Metadata = {
   title: "T-Matic: Thematic Analysis Tool",
   description: "AI-powered thematic analysis for qualitative researchers.",
   icons: {
-    icon: "/tmatic-logo.svg",
-    shortcut: "/tmatic-logo.svg",
-    apple: "/tmatic-logo.svg",
+    icon: "/tmatic-logo.png",
+    shortcut: "/tmatic-logo.png",
+    apple: "/tmatic-logo.png",
   },
 };
 

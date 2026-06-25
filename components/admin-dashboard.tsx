@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Activity, ArrowDown, ArrowUp, BarChart3, Database, Edit, Layers3, Plus, Search, Shield, Tags, Trash2, UserCog, X } from "lucide-react";
+import { Activity, ArrowDown, ArrowUp, BarChart3, Database, Edit, Layers3, Loader2, Plus, Search, Shield, Tags, Trash2, UserCog, X } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ProfileMenu } from "@/components/profile-menu";
 import { Button } from "@/components/ui/button";
@@ -613,7 +613,10 @@ function UserForm({ user, onClose, onSaved }: { user: ManagedUser | null; onClos
         </div>
         <div className="mt-6 flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-          <Button disabled={loading}>{loading ? "Saving..." : "Save"}</Button>
+          <Button disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            {loading ? "Saving..." : "Save"}
+          </Button>
         </div>
       </form>
     </div>

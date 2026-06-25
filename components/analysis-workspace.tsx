@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/components/ui/use-toast";
 import type { AnalysisHistoryItem, AnalysisResult } from "@/lib/analysis";
 import type { SessionUser } from "@/lib/auth";
 
@@ -184,7 +186,7 @@ export function AnalysisWorkspace({ user }: { user: SessionUser | null }) {
           <h2 className="text-3xl font-black text-slate-900">Thematic Analysis Results</h2>
           <p className="text-muted-foreground">Structured outputs for review, refinement, and reporting.</p>
         </div>
-        {result ? <Results result={result} /> : <EmptyResults />}
+        {loading ? <AnalysisLoadingSkeleton /> : result ? <Results result={result} /> : <EmptyResults />}
       </section>
     </section>
   );
@@ -202,6 +204,7 @@ function EmptyResults() {
 
 function Results({ result }: { result: AnalysisResult }) {
   const reportRef = React.useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = React.useState<"pdf" | "image" | null>(null);
 
   function exportCsv() {
     const rows = [
@@ -240,38 +243,57 @@ function Results({ result }: { result: AnalysisResult }) {
   }
 
   async function exportImage() {
-    const { default: html2canvas } = await import("html2canvas");
-    const { canvas, cleanup } = await captureDesktopReport(result, html2canvas);
-    canvas.toBlob((blob) => {
-      if (blob) downloadBlob(blob, "t-matic-analysis.png");
+    setExporting("image");
+    try {
+      const { default: html2canvas } = await import("html2canvas");
+      const { canvas, cleanup } = await captureDesktopReport(result, html2canvas);
+      const blob = await canvasToBlob(canvas);
       cleanup();
-    }, "image/png");
+      downloadBlob(blob, "t-matic-analysis.png");
+    } catch (error) {
+      toast({
+        title: "Image export failed",
+        description: error instanceof Error ? error.message : "Unable to generate the image.",
+      });
+    } finally {
+      setExporting(null);
+    }
   }
 
   async function exportPdf() {
-    const { default: html2canvas } = await import("html2canvas");
-    const { default: jsPDF } = await import("jspdf");
-    const { canvas, cleanup } = await captureDesktopReport(result, html2canvas);
-    const image = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imageHeight = (canvas.height * pageWidth) / canvas.width;
-    let remainingHeight = imageHeight;
-    let y = 0;
+    setExporting("pdf");
+    try {
+      const { default: html2canvas } = await import("html2canvas");
+      const { default: jsPDF } = await import("jspdf");
+      const { canvas, cleanup } = await captureDesktopReport(result, html2canvas);
+      const image = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imageHeight = (canvas.height * pageWidth) / canvas.width;
+      let remainingHeight = imageHeight;
+      let y = 0;
 
-    pdf.addImage(image, "PNG", 0, y, pageWidth, imageHeight);
-    remainingHeight -= pageHeight;
-
-    while (remainingHeight > 0) {
-      y -= pageHeight;
-      pdf.addPage();
       pdf.addImage(image, "PNG", 0, y, pageWidth, imageHeight);
       remainingHeight -= pageHeight;
-    }
 
-    pdf.save("t-matic-analysis.pdf");
-    cleanup();
+      while (remainingHeight > 0) {
+        y -= pageHeight;
+        pdf.addPage();
+        pdf.addImage(image, "PNG", 0, y, pageWidth, imageHeight);
+        remainingHeight -= pageHeight;
+      }
+
+      pdf.save("t-matic-analysis.pdf");
+      cleanup();
+    } catch (error) {
+      toast({
+        title: "PDF export failed",
+        description: error instanceof Error ? error.message : "Unable to generate the PDF.",
+      });
+    } finally {
+      setExporting(null);
+    }
   }
 
   return (
@@ -283,17 +305,17 @@ function Results({ result }: { result: AnalysisResult }) {
             <CardTitle className="mt-2 text-2xl">Research Summary</CardTitle>
           </div>
           <div className="no-export flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" onClick={exportPdf}>
-              <FileText className="h-4 w-4" />
-              PDF
+            <Button variant="outline" size="sm" onClick={exportPdf} disabled={Boolean(exporting)}>
+              {exporting === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+              {exporting === "pdf" ? "Generating..." : "PDF"}
             </Button>
             <Button variant="outline" size="sm" onClick={exportCsv}>
               <TableProperties className="h-4 w-4" />
               CSV
             </Button>
-            <Button variant="outline" size="sm" onClick={exportImage}>
-              <ImageIcon className="h-4 w-4" />
-              Image
+            <Button variant="outline" size="sm" onClick={exportImage} disabled={Boolean(exporting)}>
+              {exporting === "image" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+              {exporting === "image" ? "Generating..." : "Image"}
             </Button>
           </div>
         </CardHeader>
@@ -375,8 +397,21 @@ function HistoryPanel({
       <Card className="overflow-hidden border-slate-200 shadow-sm dark:border-white/10">
         <CardContent className="p-4 sm:p-5">
           {loading ? (
-            <div className="grid min-h-[140px] place-items-center text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin" />
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {[0, 1, 2].map((item) => (
+                <div key={item} className="space-y-3 rounded-md border p-4">
+                  <div className="flex justify-between gap-3">
+                    <Skeleton className="h-5 w-36" />
+                    <Skeleton className="h-9 w-20" />
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-5/6" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : history.length ? (
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -415,6 +450,41 @@ function HistoryPanel({
         </CardContent>
       </Card>
     </section>
+  );
+}
+
+function AnalysisLoadingSkeleton() {
+  return (
+    <div className="grid gap-5" role="status" aria-label="Generating thematic analysis">
+      <Card className="overflow-hidden">
+        <CardHeader className="gap-3">
+          <div className="flex items-center gap-3 text-sm font-bold text-primary">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            Generating analysis
+          </div>
+          <Skeleton className="h-8 w-64" />
+        </CardHeader>
+        <CardContent className="grid gap-5 lg:grid-cols-[1fr_260px]">
+          <Skeleton className="h-48" />
+          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+            <Skeleton className="h-24" />
+          </div>
+        </CardContent>
+      </Card>
+      <div className="grid gap-5 lg:grid-cols-3">
+        {[0, 1, 2].map((panel) => (
+          <Card key={panel} className="overflow-hidden">
+            <Skeleton className="h-16 rounded-none" />
+            <CardContent className="grid gap-3 p-4">
+              <Skeleton className="h-28" />
+              <Skeleton className="h-28" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -463,6 +533,15 @@ function downloadBlob(blob: Blob, filename: string) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+}
+
+function canvasToBlob(canvas: HTMLCanvasElement) {
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("The browser could not create the image file."));
+    }, "image/png");
+  });
 }
 
 function exportCanvasOptions() {
@@ -522,9 +601,9 @@ function buildDesktopExportReport(result: AnalysisResult) {
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
         ${exportPanel("Top Codes", "#fef2f2", "#7f1d1d", result.codes.map((item) => `
           <div style="border:1px solid #fee2e2;background:white;border-radius:6px;padding:16px;">
-            <div style="display:flex;justify-content:space-between;gap:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
               <strong>${escapeHtml(item.code)}</strong>
-              <span style="border:1px solid #fecaca;background:#fef2f2;color:#991b1b;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700;">${item.frequency}</span>
+              ${exportCountBadge(item.frequency)}
             </div>
             <p style="margin:8px 0 0;color:#475569;font-size:14px;line-height:1.55;">${escapeHtml(item.evidence[0] ?? "")}</p>
           </div>
@@ -571,11 +650,19 @@ function exportTheme(theme: { name: string; summary: string; codes: string[] }, 
     <div style="border:1px solid #e2e8f0;background:white;border-radius:6px;padding:16px;">
       <strong>${escapeHtml(theme.name)}</strong>
       <p style="margin:8px 0 0;color:#475569;font-size:14px;line-height:1.55;">${escapeHtml(theme.summary)}</p>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;">
-        ${theme.codes.map((code) => `<span style="border:1px solid ${badgeBg};background:${badgeBg};color:${badgeColor};border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700;">${escapeHtml(code)}</span>`).join("")}
+      <div style="display:block;margin-top:12px;line-height:0;">
+        ${theme.codes.map((code) => exportBadge(code, badgeBg, badgeBg, badgeColor)).join("")}
       </div>
     </div>
   `;
+}
+
+function exportCountBadge(value: number) {
+  return `<div style="display:block;box-sizing:border-box;width:30px;height:24px;min-width:30px;border:1px solid #fecaca;background:#fef2f2;color:#991b1b;border-radius:12px;text-align:center;font-size:12px;font-weight:800;line-height:22px;white-space:nowrap;">${value}</div>`;
+}
+
+function exportBadge(value: string, background: string, border: string, color: string) {
+  return `<div style="display:inline-block;box-sizing:border-box;height:24px;max-width:100%;border:1px solid ${border};background:${background};color:${color};border-radius:12px;padding:0 10px;margin:0 6px 6px 0;font-size:12px;font-weight:800;line-height:22px;white-space:nowrap;vertical-align:top;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(value)}</div>`;
 }
 
 function escapeHtml(value: string) {
